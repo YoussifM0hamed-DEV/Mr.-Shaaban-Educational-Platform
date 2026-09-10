@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "comment": "Send API calls to Railway from the same origin, so the auth cookie stays first-party and sign-in works in Safari. Replace the host with your own Railway domain.",
+      "source": "/api/:path*",
+      "destination": "https://REPLACE-ME.up.railway.app/api/:path*"
+    },
+    {
+      "comment": "Everything else is the single page app.",
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/:path*",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ]
+}
