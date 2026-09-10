@@ -5,9 +5,9 @@
   "framework": "vite",
   "rewrites": [
     {
-      "comment": "Send API calls to Railway from the same origin, so the auth cookie stays first-party and sign-in works in Safari. Replace the host with your own Railway domain.",
+      "comment": "Send API calls to Railway from the same origin, so the auth cookie stays first-party and sign-in works in Safari.",
       "source": "/api/:path*",
-      "destination": "https://REPLACE-ME.up.railway.app/api/:path*"
+      "destination": "https://mr-shaaban-educational-platform-production.up.railway.app/api/:path*"
     },
     {
       "comment": "Everything else is the single page app.",
