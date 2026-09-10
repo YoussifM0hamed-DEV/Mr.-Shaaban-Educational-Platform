@@ -10,6 +10,13 @@ if (env.mailConfigured) {
     port: env.SMTP_PORT,
     secure: env.SMTP_SECURE,
     auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+    // Some hosts, Railway among them, give the container no IPv6 route. Without
+    // this, DNS hands back an AAAA record and every send hangs until it times out.
+    family: 4,
+    // Fail fast rather than holding a request open for minutes.
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
   });
   logger.info(`Email sending enabled via ${env.SMTP_HOST} as ${env.SMTP_USER}`);
 } else {
@@ -146,7 +153,7 @@ async function sendPasswordChanged({ to, name }) {
       <p style="margin:0;font-size:14px;color:#b91c1c;">
         If this was not you, contact your teacher immediately.
       </p>`,
-    cta: { label: 'Sign in', url: `${env.CLIENT_URL}/login` },
+    cta: { label: 'Sign in', url: `${env.primaryOrigin}/login` },
   });
 
   return send({ to, subject, html, text });

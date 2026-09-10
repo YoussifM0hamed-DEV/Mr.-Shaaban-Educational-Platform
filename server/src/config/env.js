@@ -47,9 +47,13 @@ env.isProd = env.NODE_ENV === 'production';
 
 // CLIENT_URL may hold several origins, comma separated, so a preview deployment
 // and the live site can both talk to one API.
+// The first one is the canonical site. Every link we put in an email must be
+// built from this, never from CLIENT_URL, which may be a list.
 env.allowedOrigins = env.CLIENT_URL.split(',')
   .map((o) => o.trim().replace(/\/$/, ''))
   .filter(Boolean);
+
+env.primaryOrigin = env.allowedOrigins[0] || 'http://localhost:5173';
 env.cloudinaryConfigured = Boolean(
   env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET
 );

@@ -170,18 +170,20 @@ const forgotPassword = asyncHandler(async (req, res) => {
   const token = user.createPasswordResetToken(ttl);
   await user.save({ validateBeforeSave: false });
 
-  const resetUrl = `${env.CLIENT_URL}/reset-password?token=${token}`;
-  const result = await mailService.sendPasswordReset({
-    to: user.email,
-    name: user.name,
-    resetUrl,
-    expiresInMinutes: ttl,
-  });
+  const resetUrl = `${env.primaryOrigin}/reset-password?token=${token}`;
 
-  // Without SMTP the link cannot reach the student, so surface it for the operator.
-  if (!result.sent) {
-    logger.warn(`Password reset link for ${user.email}: ${resetUrl}`);
-  }
+  // Deliberately not awaited. Waiting for the mail server would make this
+  // request take seconds when the address exists and milliseconds when it does
+  // not, which hands an attacker the very answer the identical wording is meant
+  // to withhold. It would also hang the caller whenever the mail host is slow.
+  mailService
+    .sendPasswordReset({ to: user.email, name: user.name, resetUrl, expiresInMinutes: ttl })
+    .then((result) => {
+      // Without working email the link cannot reach the student, so surface it
+      // for the operator instead of losing it.
+      if (!result.sent) logger.warn(`Password reset link for ${user.email}: ${resetUrl}`);
+    })
+    .catch((err) => logger.error(`Password reset email failed for ${user.email}:`, err.message));
 
   return sameAnswer();
 });
