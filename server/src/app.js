@@ -9,6 +9,7 @@ const morgan = require('morgan');
 const mongoSanitize = require('express-mongo-sanitize');
 
 const env = require('./config/env');
+const ApiError = require('./utils/ApiError');
 const routes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/error');
 const { apiLimiter } = require('./middleware/rateLimit');
@@ -33,7 +34,9 @@ app.use(
       // Same-origin and server-to-server calls arrive without an Origin header.
       if (!origin) return callback(null, true);
       if (env.allowedOrigins.includes(origin.replace(/\/$/, ''))) return callback(null, true);
-      return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+      // A browser calling from an origin we do not serve is a refusal, not a fault
+      // on our side, so it must not be reported or logged as a 500.
+      return callback(ApiError.forbidden(`Origin not allowed: ${origin}`));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

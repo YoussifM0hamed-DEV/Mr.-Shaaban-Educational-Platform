@@ -5,12 +5,10 @@
   "framework": "vite",
   "rewrites": [
     {
-      "comment": "Send API calls to Railway from the same origin, so the auth cookie stays first-party and sign-in works in Safari.",
       "source": "/api/:path*",
       "destination": "https://mr-shaaban-educational-platform-production.up.railway.app/api/:path*"
     },
     {
-      "comment": "Everything else is the single page app.",
       "source": "/:path*",
       "destination": "/index.html"
     }
